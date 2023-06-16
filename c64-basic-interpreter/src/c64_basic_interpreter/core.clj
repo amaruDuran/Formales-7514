@@ -25,6 +25,9 @@
 (declare aplicar)                         ; COMPLETAR
 
 (declare palabra-reservada?)              ; IMPLEMENTAR
+(declare comando?)
+(declare sentencia?)
+(declare funcion?)
 (declare operador?)                       ; IMPLEMENTAR
 (declare anular-invalidos)                ; IMPLEMENTAR
 (declare cargar-linea)                    ; IMPLEMENTAR
@@ -48,6 +51,10 @@
 (defn -main
   [& args]
   (driver-loop))
+
+(defn spy
+  ([x] (do (prn x) x))
+  ([msg x] (do (print msg) (print ": ") (prn x) x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; driver-loop: el REPL del interprete de Commodore 64 BASIC V2
@@ -628,6 +635,55 @@
 ; A PARTIR DE ESTE PUNTO HAY QUE IMPLEMENTAR LAS FUNCIONES DADAS ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(defn comando? [x]
+  (cond
+    (= x 'ENV) true
+    (= x 'LOAD) true
+    (= x 'SAVE) true
+    (= x 'RUN) true
+    (= x 'EXIT) true
+    :else false))
+
+(defn sentencia? [x]
+  (cond
+    (= x 'INPUT) true
+    (= x 'PRINT) true
+    (= x '?) true
+    (= x 'DATA) true
+    (= x 'REM) true
+    (= x 'RESTORE) true
+    (= x 'CLEAR) true
+    (= x 'LET) true
+    (= x '=) true
+    (= x 'LIST) true
+    (= x 'NEW) true
+    (= x 'END) true
+    (= x 'FOR) true
+    (= x 'TO) true
+    (= x 'NEXT) true
+    (= x 'STEP) true
+    (= x 'GOSUB) true
+    (= x 'RETURN) true
+    (= x 'GOTO) true
+    (= x 'IF) true
+    (= x 'THEN) true
+    (= x 'ON) true
+    :else false)
+  )
+
+(defn funcion? [x]
+  (cond
+    (= x 'ATN) true
+    (= x 'INT) true
+    (= x 'SIN) true
+    (= x 'EXP) true
+    (= x 'LOG) true
+    (= x 'LEN) true
+    (= x 'MID$) true
+    (= x 'ASC) true
+    (= x 'CHR$) true
+    (= x 'STR$) true))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; palabra-reservada?: predicado para determinar si un
 ; identificador es una palabra reservada, por ejemplo:
@@ -636,7 +692,15 @@
 ; user=> (palabra-reservada? 'SPACE)
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn palabra-reservada? [x])
+(defn palabra-reservada? [x]
+  (cond
+    (comando? x) true
+    (sentencia? x) true
+    (funcion? x) true
+    (operador? x) true
+    :else false
+    )
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; operador?: predicado para determinar si un identificador es un
@@ -648,7 +712,21 @@
 ; user=> (operador? (symbol "%"))
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn operador? [x])
+(defn operador? [x]
+  (cond
+    (= x '+) true
+    (= x '-) true
+    (= x '*) true
+    (= x '/) true
+    (= x 'AND) true
+    (= x 'OR) true
+    (= x '=) true
+    (= x '<>) true
+    (= x '<) true
+    (= x '<=) true
+    (= x '>) true
+    (= x '>=) true
+    :else false))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; anular-invalidos: recibe una lista de simbolos y la retorna con
