@@ -508,7 +508,7 @@
 ; actualizado
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn evaluar [sentencia amb]
-  (if (or (contains? (set sentencia) nil) (and (palabra-reservada? (first sentencia)) (= (second sentencia) '=)))
+  (if (or (contains? (set sentencia) nil) (and ((palabra-reservada? (first sentencia))) (= (second sentencia) '=)))
     (do (dar-error 16 (amb 1)) [nil amb])  ; Syntax error  
     (case (first sentencia)
       PRINT (let [args (next sentencia), resu (imprimir args amb)]
@@ -782,7 +782,13 @@
 ;
 ; ?ERROR DISK FULL IN 100nil
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn dar-error [cod prog-ptrs])
+(defn dar-error [cod prog-ptrs]
+  (cond
+    (number? cod) (if (keyword? (nth prog-ptrs 0)) (print (str "\n" (buscar-mensaje cod))) (print (str "\n" (buscar-mensaje cod) " IN " (nth prog-ptrs 0))))
+    (string? cod) (if (keyword? (nth prog-ptrs 0)) (print (str "\n" cod)) (print (str "\n" cod " IN " (nth prog-ptrs 0))))
+    :else nil
+    )
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; variable-float?: predicado para determinar si un identificador
