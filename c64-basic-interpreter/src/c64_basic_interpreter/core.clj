@@ -52,6 +52,7 @@
   [& args]
   (driver-loop))
 
+;BORRAR
 (defn spy
   ([x] (do (prn x) x))
   ([msg x] (do (print msg) (print ": ") (prn x) x)))
@@ -650,6 +651,7 @@
     (= x 'PRINT) true
     (= x '?) true
     (= x 'DATA) true
+    (= x 'READ) true
     (= x 'REM) true
     (= x 'RESTORE) true
     (= x 'CLEAR) true
@@ -863,7 +865,7 @@
 ; user=> (buscar-lineas-restantes [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [25 0] [] [] [] 0 {}])
 ; nil
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn buscar-lineas-restantes)
+(defn buscar-lineas-restantes [&more]);; BORRAR Parámetro: ACA AGREGUÉ PARÁMETRO, Ver si está bien.
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; continuar-linea: implementa la sentencia RETURN, retornando una
