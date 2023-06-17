@@ -1,4 +1,6 @@
-(ns c64-basic-interpreter.core)
+(ns c64-basic-interpreter.core
+  (:require [clojure.string :as str] :reload-all)
+  )
 
 (declare driver-loop)                     ; NO TOCAR
 (declare string-a-tokens)                 ; NO TOCAR
@@ -800,7 +802,9 @@
 ; user=> (variable-float? 'X$)
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn variable-float? [x])
+(defn variable-float? [x]
+  (not (or (str/includes? (str x) "$") (str/includes? (str x) "%")))
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; variable-integer?: predicado para determinar si un identificador
@@ -812,7 +816,9 @@
 ; user=> (variable-integer? 'X$)
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn variable-integer? [x])
+(defn variable-integer? [x]
+  (str/includes? (str x) "%")
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; variable-string?: predicado para determinar si un identificador
@@ -824,7 +830,9 @@
 ; user=> (variable-string? 'X%)
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn variable-string? [x])
+(defn variable-string? [x]
+  (str/includes? (str x) "$")
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; contar-sentencias: recibe un numero de linea y un ambiente y
