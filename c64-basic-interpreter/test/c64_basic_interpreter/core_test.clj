@@ -2,6 +2,44 @@
   (:require [clojure.test :refer :all]
             [c64-basic-interpreter.core :refer :all]))
 
-(deftest a-test
-  (testing "FIXME, I fail."
-    (is (= 0 1))))
+(deftest operador?-test
+  (testing "+ - * / son operadores"
+    (is (= true (operador? (symbol "+"))))
+    (is (= true (operador? (symbol "-"))))
+    (is (= true (operador? (symbol "*"))))
+    (is (= true (operador? (symbol "/"))))
+    (is (= true (operador? '+)))
+    (is (= true (operador? '-)))
+    (is (= true (operador? '*)))
+    (is (= true (operador? '/)))
+  )
+  (testing "AND OR son operadores"
+    (is (= true (operador? (symbol "AND"))))
+    (is (= true (operador? (symbol "OR"))))
+    (is (= true (operador? 'AND)))
+    (is (= true (operador? 'OR)))
+  )
+  (testing "<> < <= > >= son operadores"
+    (is (= true (operador? (symbol "="))))
+    (is (= true (operador? (symbol "<>"))))
+    (is (= true (operador? (symbol "<"))))
+    (is (= true (operador? (symbol "<="))))
+    (is (= true (operador? (symbol ">"))))
+    (is (= true (operador? (symbol ">="))))
+    (is (= true (operador? '=)))
+    (is (= true (operador? '<>)))
+    (is (= true (operador? '<)))
+    (is (= true (operador? '<=)))
+    (is (= true (operador? '>)))
+    (is (= true (operador? '>=)))
+  )
+  (testing "el resto no son operadores"
+    (is (= false (operador? (symbol "THEN"))))
+    (is (= false (operador? (symbol "ENV"))))
+    (is (= false (operador? (symbol "INPUT"))))
+    (is (= false (operador? (symbol "END"))))
+    (is (= false (operador? (symbol "IF"))))
+    (is (= false (operador? (symbol "INT"))))
+    (is (= false (operador? (symbol "CHR$"))))
+  )
+)
