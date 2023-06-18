@@ -48,6 +48,10 @@
 (declare precedencia)                     ; IMPLEMENTAR
 (declare aridad)                          ; IMPLEMENTAR
 (declare eliminar-cero-decimal)           ; IMPLEMENTAR
+(declare _parte_decimal_float)
+(declare _es_positivo?)
+(declare _insertar_signo_numerico)
+(declare _eliminar_cero_entero_float)
 (declare eliminar-cero-entero)            ; IMPLEMENTAR
 
 (defn -main
@@ -990,7 +994,32 @@
 ; user=> (eliminar-cero-decimal 'A)
 ; A
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn eliminar-cero-decimal [n])
+(defn eliminar-cero-decimal [n]
+  (cond
+    (float? n) (if (= (- n (int n)) 0.0) (int n) n)
+    :else n
+    )
+)
+
+; **** Funciones auxiliares de eliminar-cero-entero ****
+(defn _es_positivo? [n]
+  (>= n 0)
+  )
+
+(defn _parte_decimal_float [n]
+  (second (str/split (str n) #"\."))
+  )
+
+(defn _insertar_signo_numerico [n]
+  (if (_es_positivo? n) (str " " n) (str n))
+  )
+
+(defn _eliminar_cero_entero_float [n]
+  (cond
+    (and (> n -1.0) (< n 1.0)) (if (_es_positivo? n) (str " ." (_parte_decimal_float n)) (str "-." (_parte_decimal_float n)))
+    :else (_insertar_signo_numerico n)
+    )
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; eliminar-cero-entero: recibe un simbolo y lo retorna convertido
@@ -1015,6 +1044,14 @@
 ; user=> (eliminar-cero-entero -0.5)
 ; "-.5"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn eliminar-cero-entero [n])
+(defn eliminar-cero-entero [n]
+  (cond
+    (nil? n) nil
+    (integer? n) (_insertar_signo_numerico n)
+    (float? n) (_eliminar_cero_entero_float n)
+    (symbol? n) (str n)
+    :else nil
+    )
+  )
 
 true
