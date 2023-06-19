@@ -676,8 +676,7 @@
     (= x 'IF) true
     (= x 'THEN) true
     (= x 'ON) true
-    :else false)
-  )
+    :else false))
 
 (defn funcion? [x]
   (cond
@@ -690,7 +689,8 @@
     (= x 'MID$) true
     (= x 'ASC) true
     (= x 'CHR$) true
-    (= x 'STR$) true))
+    (= x 'STR$) true
+    :else false))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; palabra-reservada?: predicado para determinar si un
@@ -706,9 +706,7 @@
     (sentencia? x) true
     (funcion? x) true
     (operador? x) true
-    :else false
-    )
-  )
+    :else false))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; operador?: predicado para determinar si un identificador es un
