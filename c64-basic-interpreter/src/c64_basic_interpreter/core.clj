@@ -27,9 +27,9 @@
 (declare aplicar)                         ; COMPLETAR
 
 (declare palabra-reservada?)              ; IMPLEMENTAR
-(declare comando?)
-(declare sentencia?)
-(declare funcion?)
+(declare _comando?)
+(declare _sentencia?)
+(declare _funcion?)
 (declare operador?)                       ; IMPLEMENTAR
 (declare anular-invalidos)                ; IMPLEMENTAR
 (declare cargar-linea)                    ; IMPLEMENTAR
@@ -642,7 +642,7 @@
 ; A PARTIR DE ESTE PUNTO HAY QUE IMPLEMENTAR LAS FUNCIONES DADAS ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defn comando? [x]
+(defn _comando? [x]
   (cond
     (= x 'ENV) true
     (= x 'LOAD) true
@@ -651,7 +651,7 @@
     (= x 'EXIT) true
     :else false))
 
-(defn sentencia? [x]
+(defn _sentencia? [x]
   (cond
     (= x 'INPUT) true
     (= x 'PRINT) true
@@ -678,7 +678,7 @@
     (= x 'ON) true
     :else false))
 
-(defn funcion? [x]
+(defn _funcion? [x]
   (cond
     (= x 'ATN) true
     (= x 'INT) true
@@ -702,9 +702,9 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn palabra-reservada? [x]
   (cond
-    (comando? x) true
-    (sentencia? x) true
-    (funcion? x) true
+    (_comando? x) true
+    (_sentencia? x) true
+    (_funcion? x) true
     (operador? x) true
     :else false))
 
@@ -756,6 +756,30 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn cargar-linea [linea amb])
 
+
+
+; **** Funciones auxiliares de expandir-nexts ****
+
+(defn _crear_next [sentencia nro-next]
+  (case nro-next
+    1 (list 'NEXT (second sentencia))
+    2 (list (list 'NEXT (last (first sentencia)))))
+  )
+
+(defn _next_expandible? [sentencia]
+  (and (contains? (set sentencia) 'NEXT) (contains? (set sentencia) (symbol ",")))
+  )
+
+(defn _mapear_primer_next [sentencia]
+  (cond
+    (_next_expandible? sentencia) (_crear_next sentencia 1)
+    :else sentencia)
+  )
+
+(defn _contiene_next_expandible? [sentencias]
+  (= 1 (count (filter _next_expandible? sentencias)))
+  )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; expandir-nexts: recibe una lista de sentencias y la devuelve con
 ; las sentencias NEXT compuestas expresadas como sentencias NEXT
@@ -767,7 +791,13 @@
 ; user=> (expandir-nexts n)
 ; ((PRINT 1) (NEXT A) (NEXT B))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn expandir-nexts [n])
+(defn expandir-nexts [sentencias]
+  (cond
+    (_contiene_next_expandible? sentencias) (concat (map _mapear_primer_next sentencias) (_crear_next (filter _next_expandible? sentencias) 2))
+    :else sentencias
+    )
+  )
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; dar-error: recibe un error (codigo o mensaje) y el puntero de 
@@ -836,6 +866,16 @@
   (str/includes? (str x) "$")
   )
 
+; **** Funciones auxiliares de contar-sentencias ****
+
+(defn _nro_linea_esta? [nro-linea sentencia_con_numero]
+  (= nro-linea (first sentencia_con_numero))
+  )
+
+(defn _filtrar_por_nro_linea [nro-linea sentencias_con_numero]
+  (filter (partial _nro_linea_esta? nro-linea) sentencias_con_numero)
+  )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; contar-sentencias: recibe un numero de linea y un ambiente y
 ; retorna la cantidad de sentencias que hay en la linea indicada,
@@ -847,7 +887,9 @@
 ; user=> (contar-sentencias 20 [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [10 1] [] [] [] 0 {}])
 ; 2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn contar-sentencias [nro-linea amb])
+(defn contar-sentencias [nro-linea amb]
+  (count (expandir-nexts (rest (first (_filtrar_por_nro_linea nro-linea (first amb))))))
+)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; buscar-lineas-restantes: recibe un ambiente y retorna la
@@ -1000,6 +1042,7 @@
 )
 
 ; **** Funciones auxiliares de eliminar-cero-entero ****
+
 (defn _es_positivo? [n]
   (>= n 0)
   )
