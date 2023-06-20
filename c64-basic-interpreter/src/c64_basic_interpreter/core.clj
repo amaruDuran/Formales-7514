@@ -754,7 +754,11 @@
 ; user=> (cargar-linea '(15 (X = X - 1)) ['((10 (PRINT X)) (15 (X = X + 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}])
 ; [((10 (PRINT X)) (15 (X = X - 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn cargar-linea [linea amb])
+(defn cargar-linea [linea amb]
+  (cond
+    (empty? (first amb)) (into [] (concat (list (list linea)) (rest amb)))
+    :else (into [] (conj (rest amb) (concat (first amb) (list linea)))))
+  ) 
 
 
 
