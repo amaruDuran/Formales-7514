@@ -754,10 +754,42 @@
 ; user=> (cargar-linea '(15 (X = X - 1)) ['((10 (PRINT X)) (15 (X = X + 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}])
 ; [((10 (PRINT X)) (15 (X = X - 1)) (20 (X = 100))) [:ejecucion-inmediata 0] [] [] [] 0 {}]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(defn _ordenar_por_num_linea [linea]
+  (sort-by first linea)
+  )
+
+(defn _aux_nro_linea_repetida? [nro-linea linea-amb]
+  (= nro-linea (first linea-amb))
+  )
+
+(defn _nro_linea_repetida? [linea lineas-amb]
+  (some (partial _aux_nro_linea_repetida? (first linea)) lineas-amb)
+  )
+
+(defn _construir_ambiente [lineas amb]
+  (into [] (conj (rest amb) lineas)))
+
+(defn _insertar_linea_ordenadamente [linea amb]
+  (_construir_ambiente (_ordenar_por_num_linea (concat (first amb) (list linea))) amb)
+  )
+
+(defn _aux_reemplazar_linea_repetida [linea linea-amb]
+  (cond
+    (= (first linea) (first linea-amb)) linea
+    :else linea-amb
+    )
+  )
+
+(defn _reemplazar_linea_repetida [linea lineas-amb]
+  (map (partial _aux_reemplazar_linea_repetida linea) lineas-amb)
+  )
+
 (defn cargar-linea [linea amb]
   (cond
     (empty? (first amb)) (into [] (concat (list (list linea)) (rest amb)))
-    :else (into [] (conj (rest amb) (concat (first amb) (list linea)))))
+    (_nro_linea_repetida? linea (first amb)) (_construir_ambiente (_reemplazar_linea_repetida linea (first amb)) amb)
+    :else (_insertar_linea_ordenadamente linea amb))
   ) 
 
 
@@ -927,7 +959,7 @@
 ; user=> (buscar-lineas-restantes [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [25 0] [] [] [] 0 {}])
 ; nil
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn buscar-lineas-restantes [&more]);; BORRAR Parámetro: ACA AGREGUÉ PARÁMETRO, Ver si está bien.
+(defn buscar-lineas-restantes [amb])
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; continuar-linea: implementa la sentencia RETURN, retornando una
