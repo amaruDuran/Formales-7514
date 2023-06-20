@@ -1,6 +1,5 @@
 (ns c64-basic-interpreter.core
-  (:require [clojure.string :as str] :reload-all)
-  )
+  (:require [clojure.string :as str] :reload-all))
 
 (declare driver-loop)                     ; NO TOCAR
 (declare string-a-tokens)                 ; NO TOCAR
@@ -756,41 +755,33 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (defn _ordenar_por_num_linea [linea]
-  (sort-by first linea)
-  )
+  (sort-by first linea))
 
 (defn _aux_nro_linea_repetida? [nro-linea linea-amb]
-  (= nro-linea (first linea-amb))
-  )
+  (= nro-linea (first linea-amb)))
 
 (defn _nro_linea_repetida? [linea lineas-amb]
-  (some (partial _aux_nro_linea_repetida? (first linea)) lineas-amb)
-  )
+  (some (partial _aux_nro_linea_repetida? (first linea)) lineas-amb))
 
 (defn _construir_ambiente [lineas amb]
   (into [] (conj (rest amb) lineas)))
 
 (defn _insertar_linea_ordenadamente [linea amb]
-  (_construir_ambiente (_ordenar_por_num_linea (concat (first amb) (list linea))) amb)
-  )
+  (_construir_ambiente (_ordenar_por_num_linea (concat (first amb) (list linea))) amb))
 
 (defn _aux_reemplazar_linea_repetida [linea linea-amb]
   (cond
     (= (first linea) (first linea-amb)) linea
-    :else linea-amb
-    )
-  )
+    :else linea-amb))
 
 (defn _reemplazar_linea_repetida [linea lineas-amb]
-  (map (partial _aux_reemplazar_linea_repetida linea) lineas-amb)
-  )
+  (map (partial _aux_reemplazar_linea_repetida linea) lineas-amb))
 
 (defn cargar-linea [linea amb]
   (cond
     (empty? (first amb)) (into [] (concat (list (list linea)) (rest amb)))
     (_nro_linea_repetida? linea (first amb)) (_construir_ambiente (_reemplazar_linea_repetida linea (first amb)) amb)
-    :else (_insertar_linea_ordenadamente linea amb))
-  ) 
+    :else (_insertar_linea_ordenadamente linea amb)))
 
 
 
@@ -799,22 +790,18 @@
 (defn _crear_next [sentencia nro-next]
   (case nro-next
     1 (list 'NEXT (second sentencia))
-    2 (list (list 'NEXT (last (first sentencia)))))
-  )
+    2 (list (list 'NEXT (last (first sentencia))))))
 
 (defn _next_expandible? [sentencia]
-  (and (contains? (set sentencia) 'NEXT) (contains? (set sentencia) (symbol ",")))
-  )
+  (and (contains? (set sentencia) 'NEXT) (contains? (set sentencia) (symbol ","))))
 
 (defn _mapear_primer_next [sentencia]
   (cond
     (_next_expandible? sentencia) (_crear_next sentencia 1)
-    :else sentencia)
-  )
+    :else sentencia))
 
 (defn _contiene_next_expandible? [sentencias]
-  (= 1 (count (filter _next_expandible? sentencias)))
-  )
+  (= 1 (count (filter _next_expandible? sentencias))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; expandir-nexts: recibe una lista de sentencias y la devuelve con
@@ -830,9 +817,7 @@
 (defn expandir-nexts [sentencias]
   (cond
     (_contiene_next_expandible? sentencias) (concat (map _mapear_primer_next sentencias) (_crear_next (filter _next_expandible? sentencias) 2))
-    :else sentencias
-    )
-  )
+    :else sentencias))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -856,9 +841,9 @@
   (cond
     (number? cod) (if (keyword? (nth prog-ptrs 0)) (print (str "\n" (buscar-mensaje cod))) (print (str "\n" (buscar-mensaje cod) " IN " (nth prog-ptrs 0))))
     (string? cod) (if (keyword? (nth prog-ptrs 0)) (print (str "\n" cod)) (print (str "\n" cod " IN " (nth prog-ptrs 0))))
-    :else nil
-    )
-  )
+    :else nil))
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; variable-float?: predicado para determinar si un identificador
@@ -871,7 +856,11 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn variable-float? [x]
-  (not (or (str/includes? (str x) "$") (str/includes? (str x) "%")))
+  (cond
+    (string? x) false
+    (number? x) false
+    :else (and (not (palabra-reservada? x)) (not (or (str/includes? (str x) "$") (str/includes? (str x) "%"))))
+    )
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -885,7 +874,11 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn variable-integer? [x]
-  (str/includes? (str x) "%")
+  (cond
+    (string? x) false
+    (number? x) false
+    :else (and (not (palabra-reservada? x)) (str/includes? (str x) "%"))
+    )
   )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -899,18 +892,19 @@
 ; false
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn variable-string? [x]
-  (str/includes? (str x) "$")
+  (cond
+    (string? x) false
+    (number? x) false
+    :else (and (not (palabra-reservada? x)) (str/includes? (str x) "$")))
   )
 
 ; **** Funciones auxiliares de contar-sentencias ****
 
 (defn _nro_linea_esta? [nro-linea sentencia_con_numero]
-  (= nro-linea (first sentencia_con_numero))
-  )
+  (= nro-linea (first sentencia_con_numero)))
 
 (defn _filtrar_por_nro_linea [nro-linea sentencias_con_numero]
-  (filter (partial _nro_linea_esta? nro-linea) sentencias_con_numero)
-  )
+  (filter (partial _nro_linea_esta? nro-linea) sentencias_con_numero))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; contar-sentencias: recibe un numero de linea y un ambiente y
@@ -924,8 +918,7 @@
 ; 2
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn contar-sentencias [nro-linea amb]
-  (count (expandir-nexts (rest (first (_filtrar_por_nro_linea nro-linea (first amb))))))
-)
+  (count (expandir-nexts (rest (first (_filtrar_por_nro_linea nro-linea (first amb)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; buscar-lineas-restantes: recibe un ambiente y retorna la
@@ -1000,6 +993,21 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn ejecutar-asignacion [sentencia amb])
 
+(defn _es_variable? [simbolo]
+  (or (variable-integer? simbolo) (variable-float? simbolo) (variable-string? simbolo))
+  )
+
+(defn _punto_o_variable_numerica? [simbolo]
+  (or (variable-float? simbolo) (spy "variable-integer?"(variable-integer? simbolo)) (= '\. simbolo))
+  )
+
+(defn _reemplazar_valores [var-mem simbolo]
+  (cond
+    (and (_es_variable? simbolo) (contains? var-mem simbolo)) (get var-mem simbolo)
+    (and (_punto_o_variable_numerica? simbolo) (not (contains? var-mem simbolo))) 0
+    (and (variable-string? simbolo) (not (contains? var-mem simbolo))) ""
+    :else simbolo)
+  )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; preprocesar-expresion: recibe una expresion y la retorna con
 ; las variables reemplazadas por sus valores y el punto por el
@@ -1009,7 +1017,9 @@
 ; user=> (preprocesar-expresion '(X + . / Y% * Z) ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X 5 Y% 2}])
 ; (5 + 0 / 2 * 0)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn preprocesar-expresion [expr amb])
+(defn preprocesar-expresion [expr amb]
+  (let [var-mem (last amb)]
+    (map (partial _reemplazar_valores var-mem) expr)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; desambiguar: recibe un expresion y la retorna sin los + unarios,
@@ -1073,30 +1083,23 @@
 (defn eliminar-cero-decimal [n]
   (cond
     (float? n) (if (= (- n (int n)) 0.0) (int n) n)
-    :else n
-    )
-)
+    :else n))
 
 ; **** Funciones auxiliares de eliminar-cero-entero ****
 
 (defn _es_positivo? [n]
-  (>= n 0)
-  )
+  (>= n 0))
 
 (defn _parte_decimal_float [n]
-  (second (str/split (str n) #"\."))
-  )
+  (second (str/split (str n) #"\.")))
 
 (defn _insertar_signo_numerico [n]
-  (if (_es_positivo? n) (str " " n) (str n))
-  )
+  (if (_es_positivo? n) (str " " n) (str n)))
 
 (defn _eliminar_cero_entero_float [n]
   (cond
     (and (> n -1.0) (< n 1.0)) (if (_es_positivo? n) (str " ." (_parte_decimal_float n)) (str "-." (_parte_decimal_float n)))
-    :else (_insertar_signo_numerico n)
-    )
-  )
+    :else (_insertar_signo_numerico n)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; eliminar-cero-entero: recibe un simbolo y lo retorna convertido
@@ -1127,8 +1130,6 @@
     (integer? n) (_insertar_signo_numerico n)
     (float? n) (_eliminar_cero_entero_float n)
     (symbol? n) (str n)
-    :else nil
-    )
-  )
+    :else nil))
 
 true
