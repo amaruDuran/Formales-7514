@@ -1057,7 +1057,34 @@
 ; user=> (precedencia 'MID$)
 ; 8
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn precedencia [token])
+(defn precedencia [token]
+  (cond
+    (= 'OR token) 1
+    (= 'AND token) 2
+    (= '<= token) 4
+    (= '>= token) 4
+    (= '<> token) 4
+    (= '< token) 4
+    (= '> token) 4
+    (= '= token) 4
+    (= '+ token) 5
+    (= '- token) 5
+    (= '/ token) 6
+    (= '* token) 6
+    (= '-u token) 7
+    (= 'STR$ token) 8
+    (= 'CHR$ token) 8
+    (= 'ASC token) 8
+    (= 'MID$ token) 8
+    (= 'MID3$ token) 8
+    (= 'LEN token) 8
+    (= 'LOG token) 8
+    (= 'EXP token) 8
+    (= 'SIN token) 8
+    (= 'INT token) 8
+    (= 'ATN token) 8
+    :else nil
+    ))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; aridad: recibe un token y retorna el valor de su aridad, por
