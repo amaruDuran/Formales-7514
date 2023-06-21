@@ -26,6 +26,7 @@
 (declare aplicar)                         ; COMPLETAR
 
 (declare palabra-reservada?)              ; IMPLEMENTAR
+(declare _es_variable?)
 (declare _comando?)
 (declare _sentencia?)
 (declare _funcion?)
@@ -733,13 +734,37 @@
     (= x '>=) true
     :else false))
 
+(defn _caracter_especial? [x]
+  (cond
+    (= '\; x) true
+    (= '\, x) true
+    (= '\( x) true
+    (= '\) x) true
+    (= '\: x) true
+    :else false
+   )
+  )
+
+(defn _aux_anular_invalidos [simbolo]
+  (cond
+    (string? simbolo) simbolo
+    (number? simbolo) simbolo
+    (_caracter_especial? simbolo) simbolo
+    (_es_variable? simbolo) simbolo
+    (palabra-reservada? simbolo) simbolo
+    :else nil
+    )
+  )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; anular-invalidos: recibe una lista de simbolos y la retorna con
 ; aquellos que son invalidos reemplazados por nil, por ejemplo:
 ; user=> (anular-invalidos '(IF X & * Y < 12 THEN LET ! X = 0))
 ; (IF X nil * Y < 12 THEN LET nil X = 0)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn anular-invalidos [sentencia])
+(defn anular-invalidos [sentencia]
+  (map _aux_anular_invalidos sentencia)
+  )
 
 
 
@@ -846,7 +871,13 @@
     (string? cod) (if (keyword? (nth prog-ptrs 0)) (print (str "\n" cod)) (print (str "\n" cod " IN " (nth prog-ptrs 0))))
     :else nil))
 
-
+(defn es_alfanumerico? [x]
+  (let [s (str x)] 
+    (cond
+      (nil? (re-matches #"\w" s)) false
+      :else true)
+    )
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; variable-float?: predicado para determinar si un identificador
@@ -862,7 +893,7 @@
   (cond
     (string? x) false
     (number? x) false
-    :else (and (not (palabra-reservada? x)) (not (or (str/includes? (str x) "$") (str/includes? (str x) "%"))))
+    :else (and (not (palabra-reservada? x)) (not (or (str/includes? (str x) "$") (str/includes? (str x) "%"))) (es_alfanumerico? x))
     )
   )
 
@@ -1001,7 +1032,7 @@
   )
 
 (defn _punto_o_variable_numerica? [simbolo]
-  (or (variable-float? simbolo) (spy "variable-integer?"(variable-integer? simbolo)) (= '\. simbolo))
+  (or (variable-float? simbolo) (variable-integer? simbolo) (= '\. simbolo))
   )
 
 (defn _reemplazar_valores [var-mem simbolo]
