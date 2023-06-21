@@ -1100,7 +1100,34 @@
 ; user=> (aridad 'MID3$)
 ; 3
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn aridad [token])
+(defn aridad [token]
+  (cond
+    (= 'OR token) 2
+    (= 'AND token) 2
+    (= '<= token) 2
+    (= '>= token) 2
+    (= '<> token) 2
+    (= '< token) 2
+    (= '> token) 2
+    (= '= token) 2
+    (= '+ token) 2
+    (= '- token) 2
+    (= '/ token) 2
+    (= '* token) 2
+    (= '-u token) 1
+    (= 'STR$ token) 1
+    (= 'CHR$ token) 1
+    (= 'ASC token) 1
+    (= 'MID$ token) 2
+    (= 'MID3$ token) 3
+    (= 'LEN token) 1
+    (= 'LOG token) 1
+    (= 'EXP token) 1
+    (= 'SIN token) 1
+    (= 'INT token) 1
+    (= 'ATN token) 1
+    :else 0)
+    )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; eliminar-cero-decimal: recibe un numero y lo retorna sin ceros
