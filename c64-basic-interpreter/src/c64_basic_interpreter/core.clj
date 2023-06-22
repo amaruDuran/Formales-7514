@@ -595,8 +595,8 @@
           (if (nil? resu)
             [nil amb]
             [:sin-errores resu]))
-        (do (dar-error 16 (amb 1)) [nil amb]))))  ; Syntax error
-  )
+        (do (dar-error 16 (amb 1)) [nil amb])))))  ; Syntax error
+  
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; aplicar: aplica un operador a sus operandos y retorna el valor
@@ -741,9 +741,9 @@
     (= (symbol "(") x) true
     (= (symbol ")") x) true
     (= (symbol ":") x) true
-    :else false
-   )
-  )
+    :else false))
+   
+  
 
 (defn _aux_anular_invalidos [simbolo]
   (cond
@@ -752,9 +752,9 @@
     (_caracter_especial? simbolo) simbolo
     (_es_variable? simbolo) simbolo
     (palabra-reservada? simbolo) simbolo
-    :else nil
-    )
-  )
+    :else nil))
+    
+  
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; anular-invalidos: recibe una lista de simbolos y la retorna con
@@ -763,8 +763,8 @@
 ; (IF X nil * Y < 12 THEN LET nil X = 0)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn anular-invalidos [sentencia]
-  (map _aux_anular_invalidos sentencia)
-  )
+  (map _aux_anular_invalidos sentencia))
+  
 
 
 
@@ -875,9 +875,9 @@
   (let [s (str x)] 
     (cond
       (nil? (re-matches #"\w" s)) false
-      :else true)
-    )
-  )
+      :else true)))
+    
+  
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; variable-float?: predicado para determinar si un identificador
@@ -893,9 +893,9 @@
   (cond
     (string? x) false
     (number? x) false
-    :else (and (not (palabra-reservada? x)) (not (or (str/includes? (str x) "$") (str/includes? (str x) "%"))) (es_alfanumerico? x))
-    )
-  )
+    :else (and (not (palabra-reservada? x)) (not (or (str/includes? (str x) "$") (str/includes? (str x) "%"))) (es_alfanumerico? x))))
+    
+  
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; variable-integer?: predicado para determinar si un identificador
@@ -911,9 +911,9 @@
   (cond
     (string? x) false
     (number? x) false
-    :else (and (not (palabra-reservada? x)) (str/includes? (str x) "%"))
-    )
-  )
+    :else (and (not (palabra-reservada? x)) (str/includes? (str x) "%"))))
+    
+  
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; variable-string?: predicado para determinar si un identificador
@@ -929,8 +929,8 @@
   (cond
     (string? x) false
     (number? x) false
-    :else (and (not (palabra-reservada? x)) (str/includes? (str x) "$")))
-  )
+    :else (and (not (palabra-reservada? x)) (str/includes? (str x) "$"))))
+  
 
 ; **** Funciones auxiliares de contar-sentencias ****
 
@@ -987,6 +987,8 @@
 ; nil
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn buscar-lineas-restantes [amb])
+  
+  
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; continuar-linea: implementa la sentencia RETURN, retornando una
@@ -1012,6 +1014,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn extraer-data [prg])
 
+
+; **** Funciones auxiliares de ejecutar-asignacion ****
+
+(defn aux_reemplazar_var_mem [new-var-mem elem-amb]
+  (cond
+    (map? elem-amb) new-var-mem
+    :else elem-amb))
+
+(defn _reemplazar_var_mem [var expresion data-mem amb]
+  (map (partial aux_reemplazar_var_mem (assoc data-mem var (calcular-expresion expresion amb))) amb)
+  )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; ejecutar-asignacion: recibe una asignacion y un ambiente, y
 ; retorna el ambiente actualizado al efectuar la asignacion, por
@@ -1026,25 +1040,29 @@
 ; [((10 (PRINT X))) [10 1] [] [] [] 0 {X$ "HOLA MUNDO"}]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn ejecutar-asignacion [sentencia amb]
+  (let [var (ffirst (partition-by #(= % (symbol "=")) sentencia)),
+        expresion (last (partition-by #(= % (symbol "=")) sentencia)),
+        data-mem (last amb)]
+    (into [] (_reemplazar_var_mem var expresion data-mem amb))))
   
-  
-  )
+
+; **** Funciones auxiliares de preprocesar-expresion ****
 
 (defn _es_variable? [simbolo]
-  (or (variable-integer? simbolo) (variable-float? simbolo) (variable-string? simbolo))
-  )
+  (or (variable-integer? simbolo) (variable-float? simbolo) (variable-string? simbolo)))
+  
 
 (defn _punto_o_variable_numerica? [simbolo]
-  (or (variable-float? simbolo) (variable-integer? simbolo) (= '\. simbolo))
-  )
+  (or (variable-float? simbolo) (variable-integer? simbolo) (= '\. simbolo)))
+  
 
 (defn _reemplazar_valores [var-mem simbolo]
   (cond
     (and (_es_variable? simbolo) (contains? var-mem simbolo)) (get var-mem simbolo)
     (and (_punto_o_variable_numerica? simbolo) (not (contains? var-mem simbolo))) 0
     (and (variable-string? simbolo) (not (contains? var-mem simbolo))) ""
-    :else simbolo)
-  )
+    :else simbolo))
+  
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; preprocesar-expresion: recibe una expresion y la retorna con
 ; las variables reemplazadas por sus valores y el punto por el
@@ -1074,8 +1092,8 @@
 (defn desambiguar [expr]
   (-> expr
       (desambiguar-mas-menos)
-      (desambiguar-mid)
-      ))
+      (desambiguar-mid)))
+      
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; precedencia: recibe un token y retorna el valor de su
@@ -1117,8 +1135,8 @@
     (= 'SIN token) 8
     (= 'INT token) 8
     (= 'ATN token) 8
-    :else nil
-    ))
+    :else nil))
+    
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; aridad: recibe un token y retorna el valor de su aridad, por
@@ -1160,8 +1178,8 @@
     (= 'SIN token) 1
     (= 'INT token) 1
     (= 'ATN token) 1
-    :else 0)
-    )
+    :else 0))
+    
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; eliminar-cero-decimal: recibe un numero y lo retorna sin ceros
