@@ -514,7 +514,7 @@
 ; actualizado
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn evaluar [sentencia amb]
-  (if (or (contains? (set sentencia) nil) (and ((palabra-reservada? (first sentencia))) (= (second sentencia) '=)))
+  (if (or (contains? (set sentencia) nil) (and (palabra-reservada? (first sentencia)) (= (second sentencia) '=)))
     (do (dar-error 16 (amb 1)) [nil amb])  ; Syntax error  
     (case (first sentencia)
       PRINT (let [args (next sentencia), resu (imprimir args amb)]
@@ -736,11 +736,11 @@
 
 (defn _caracter_especial? [x]
   (cond
-    (= '\; x) true
-    (= '\, x) true
-    (= '\( x) true
-    (= '\) x) true
-    (= '\: x) true
+    (= (symbol ";") x) true
+    (= (symbol ",") x) true
+    (= (symbol "(") x) true
+    (= (symbol ")") x) true
+    (= (symbol ":") x) true
     :else false
    )
   )
@@ -1025,7 +1025,10 @@
 ; user=> (ejecutar-asignacion '(X$ = X$ + " MUNDO") ['((10 (PRINT X))) [10 1] [] [] [] 0 '{X$ "HOLA"}])
 ; [((10 (PRINT X))) [10 1] [] [] [] 0 {X$ "HOLA MUNDO"}]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn ejecutar-asignacion [sentencia amb])
+(defn ejecutar-asignacion [sentencia amb]
+  
+  
+  )
 
 (defn _es_variable? [simbolo]
   (or (variable-integer? simbolo) (variable-float? simbolo) (variable-string? simbolo))
@@ -1221,6 +1224,7 @@
     (nil? n) nil
     (integer? n) (_insertar_signo_numerico n)
     (float? n) (_eliminar_cero_entero_float n)
+    (string? n) (str n)
     (symbol? n) (str n)
     :else nil))
 
