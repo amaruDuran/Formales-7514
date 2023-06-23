@@ -989,6 +989,9 @@
 (defn buscar-lineas-restantes [amb])
   
   
+(defn _construir_new_prog_ptr [[[nro-linea-go-sub sentencias-restantes]]]
+  (vector nro-linea-go-sub (dec sentencias-restantes)) 
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; continuar-linea: implementa la sentencia RETURN, retornando una
@@ -1001,7 +1004,21 @@
 ; user=> (continuar-linea [(list '(10 (PRINT X)) '(15 (GOSUB 100) (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [20 3] [[15 2]] [] [] 0 {}])
 ; [:omitir-restante [((10 (PRINT X)) (15 (GOSUB 100) (X = X + 1)) (20 (NEXT I , J))) [15 1] [] [] [] 0 {}]]
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn continuar-linea [amb])
+(defn continuar-linea [amb]
+  (let [prog-mem (first amb)
+        prog-ptr (second amb),
+        gosub-return-stack (nth amb 2),
+        for-next-stack (nth amb 3),
+        data-mem (nth amb 4),
+        data-ptr (nth amb 5),
+        var-mem (nth amb 6)
+        ]
+    (cond
+      (empty? gosub-return-stack) (vector (dar-error 22 prog-ptr) amb)
+      :else (vector :omitir-restante (vector prog-mem (_construir_new_prog_ptr gosub-return-stack) (vector) for-next-stack data-mem data-ptr var-mem))
+  )))
+
+;[(prog-mem)  [prog-ptrs]  [gosub-return-stack]  [for-next-stack]  [data-mem]  data-ptr  {var-mem}]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; extraer-data: recibe la representación intermedia de un programa
@@ -1012,7 +1029,8 @@
 ; user=> (extraer-data (list '(10 (PRINT X) (REM ESTE NO) (DATA 30)) '(20 (DATA HOLA)) (list 100 (list 'DATA 'MUNDO (symbol ",") 10 (symbol ",") 20))))
 ; ("HOLA" "MUNDO" 10 20)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn extraer-data [prg])
+(defn extraer-data [prg]
+  )
 
 
 ; **** Funciones auxiliares de ejecutar-asignacion ****
