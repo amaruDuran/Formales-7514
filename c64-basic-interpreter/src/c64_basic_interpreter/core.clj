@@ -1070,6 +1070,23 @@
       :else (vector :omitir-restante (vector prog-mem (_construir_new_prog_ptr gosub-return-stack) (vector) for-next-stack data-mem data-ptr var-mem))
   )))
 
+(defn es_rem? [[_idx sentencias-linea]]
+  (= (first sentencias-linea) (symbol "REM")))
+
+(defn _buscar_pos_primer_rem [sentencias-linea]
+  (let [filtro-rem (filter es_rem? (map-indexed list sentencias-linea))]
+    (cond
+      (empty? filtro-rem) 0
+      :else (ffirst filtro-rem))))
+
+(defn _aux_quitar_sentencias_post_rem [sentencias-linea]
+  (cond
+    (= (_buscar_pos_primer_rem sentencias-linea) 0) sentencias-linea
+    :else (take (_buscar_pos_primer_rem sentencias-linea) sentencias-linea)))
+
+(defn _quitar_sentencias_post_rem [lineas]
+  (map _aux_quitar_sentencias_post_rem lineas))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; extraer-data: recibe la representación intermedia de un programa
 ; y retorna una lista con todos los valores embebidos en las
@@ -1080,6 +1097,12 @@
 ; ("HOLA" "MUNDO" 10 20)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn extraer-data [prg]
+  (cond
+    (empty? (first prg)) (list)
+    :else (let [lineas (map rest prg)]
+            (_quitar_sentencias_post_rem lineas)
+            )
+    )
   )
 
 
