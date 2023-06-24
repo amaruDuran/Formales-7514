@@ -1070,6 +1070,9 @@
       :else (vector :omitir-restante (vector prog-mem (_construir_new_prog_ptr gosub-return-stack) (vector) for-next-stack data-mem data-ptr var-mem))
   )))
 
+
+; **** Funciones Auxiliares extraer-data ****
+
 (defn es_rem? [[_idx sentencias-linea]]
   (= (first sentencias-linea) (symbol "REM")))
 
