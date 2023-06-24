@@ -1084,8 +1084,49 @@
     (= (_buscar_pos_primer_rem sentencias-linea) 0) sentencias-linea
     :else (take (_buscar_pos_primer_rem sentencias-linea) sentencias-linea)))
 
-(defn _quitar_sentencias_post_rem [lineas]
+(defn quitar_sentencias_post_rem [lineas]
   (map _aux_quitar_sentencias_post_rem lineas))
+
+(defn _aux_filtrar_lineas_data [sentencia]
+  (= (first sentencia) (symbol "DATA"))
+  )
+
+(defn _filtrar_sentencias_data [sentencias-linea]
+  (filter _aux_filtrar_lineas_data sentencias-linea) 
+  )
+
+(defn filtrar_sentencias_data [lineas]
+  (map _filtrar_sentencias_data  lineas)
+  )
+
+(defn _quitar_simbolos_de_data [simbolo]
+  (and (not= simbolo (symbol "DATA")) (not= simbolo (symbol ",")))
+  )
+
+(defn quitar_simbolos_de_data [simbolos]
+  (filter _quitar_simbolos_de_data simbolos)
+  )
+
+(defn es_entero? [s]
+    (not(nil? (re-matches #"\d+" s))))
+
+(defn es_float? [s]
+  (not (nil? (re-matches #"\d+.\d+" s))))
+
+(defn es_string? [s]
+  (not (nil? (re-matches #"[^0-9]+" s)))
+  )
+
+(defn castear_simbolo [simbolo]
+  (let [sim (str simbolo)]
+    (cond
+      (es_string? sim) sim
+      (es_float? sim) (float (Float/parseFloat sim))
+      (es_entero? sim) (int (Integer/parseInt sim))
+      :else nil
+      )
+    )
+  )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; extraer-data: recibe la representación intermedia de un programa
@@ -1100,10 +1141,8 @@
   (cond
     (empty? (first prg)) (list)
     :else (let [lineas (map rest prg)]
-            (_quitar_sentencias_post_rem lineas)
-            )
-    )
-  )
+            (map castear_simbolo (quitar_simbolos_de_data (flatten (filtrar_sentencias_data (quitar_sentencias_post_rem lineas)))))
+            )))
 
 
 ; **** Funciones auxiliares de ejecutar-asignacion ****
