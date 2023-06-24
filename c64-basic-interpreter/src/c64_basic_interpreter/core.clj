@@ -954,6 +954,51 @@
 (defn contar-sentencias [nro-linea amb]
   (count (expandir-nexts (rest (first (_filtrar_por_nro_linea nro-linea (first amb)))))))
 
+
+; **** Funciones Auxiliares de buscar-lineas-restantes ****
+
+(defn aux_numero_linea_esta? [n linea]
+  (let [nro-linea-sentencia (first linea)]
+    (= nro-linea-sentencia n)
+    )
+  )
+
+(defn _numero_linea_esta? [lineas nro-linea]
+  (> (count (filter (partial aux_numero_linea_esta? nro-linea) lineas)) 0)
+  )
+
+(defn _aux_filtrar_lineas_restantes [nro-linea linea-act]
+  (let [nro-linea-act (first linea-act)]
+    (>= nro-linea-act nro-linea)
+    )
+  )
+
+(defn _filtrar_lineas_restantes [lineas nro-linea]
+  (filter (partial _aux_filtrar_lineas_restantes nro-linea) lineas)
+  )
+
+(defn _representacion_intermedia [lineas [nro-linea cant-sentencias-restantes]]
+  (let [lineas-restantes (_filtrar_lineas_restantes lineas nro-linea),
+        primer-linea (first lineas-restantes)
+        ]
+    (conj (rest lineas-restantes) (conj (reverse (take cant-sentencias-restantes (reverse (expandir-nexts (rest primer-linea))))) nro-linea)) 
+    )
+  
+  )
+
+(defn _buscar_lineas_restantes_nro [lineas prog-ptr]
+  (let [nro-linea (first prog-ptr),
+        cant-sentencias-restantes (second prog-ptr),
+        ]
+    (cond
+      (and (_numero_linea_esta? lineas nro-linea) (< cant-sentencias-restantes 0)) (list (list nro-linea))
+      (and (_numero_linea_esta? lineas nro-linea) (>= cant-sentencias-restantes 0)) (_representacion_intermedia lineas prog-ptr)
+      :else nil
+      )
+    )
+
+  )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; buscar-lineas-restantes: recibe un ambiente y retorna la
 ; representacion intermedia del programa a partir del puntero de
@@ -986,8 +1031,15 @@
 ; user=> (buscar-lineas-restantes [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [25 0] [] [] [] 0 {}])
 ; nil
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defn buscar-lineas-restantes [amb])
-  
+(defn buscar-lineas-restantes [amb]
+  (let [lineas (first amb) prog-ptr (second amb)]
+    (cond
+      (= (first prog-ptr) :ejecucion-inmediata) nil
+      (number? (first prog-ptr)) (_buscar_lineas_restantes_nro lineas prog-ptr)
+    )))
+
+
+; **** Funciones Auxiliares de continuar-linea ****
   
 (defn _construir_new_prog_ptr [[[nro-linea-go-sub sentencias-restantes]]]
   (vector nro-linea-go-sub (dec sentencias-restantes)) 
@@ -1017,8 +1069,6 @@
       (empty? gosub-return-stack) (vector (dar-error 22 prog-ptr) amb)
       :else (vector :omitir-restante (vector prog-mem (_construir_new_prog_ptr gosub-return-stack) (vector) for-next-stack data-mem data-ptr var-mem))
   )))
-
-;[(prog-mem)  [prog-ptrs]  [gosub-return-stack]  [for-next-stack]  [data-mem]  data-ptr  {var-mem}]
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; extraer-data: recibe la representación intermedia de un programa
