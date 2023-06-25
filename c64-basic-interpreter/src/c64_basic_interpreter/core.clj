@@ -619,6 +619,9 @@
        = (if (and (string? operando1) (string? operando2))
            (if (= operando1 operando2) -1 0)
            (if (= (+ 0 operando1) (+ 0 operando2)) -1 0))
+       < (if (and (string? operando1) (string? operando2))
+           (if (< operando1 operando2) -1 0) 
+           (if (< operando1 operando2) -1 0))
        + (if (and (string? operando1) (string? operando2))
            (str operando1 operando2)
            (+ operando1 operando2))
@@ -736,6 +739,7 @@
 
 (defn _caracter_especial? [x]
   (cond
+    (= (symbol ".") x) true
     (= (symbol ";") x) true
     (= (symbol ",") x) true
     (= (symbol "(") x) true
@@ -872,10 +876,8 @@
     :else nil))
 
 (defn es_alfanumerico? [x]
-  (let [s (str x)] 
-    (cond
-      (nil? (re-matches #"\w" s)) false
-      :else true)))
+  (let [s (str x)]
+      (not (nil? (re-matches #"\w+" s)))))
     
   
 
