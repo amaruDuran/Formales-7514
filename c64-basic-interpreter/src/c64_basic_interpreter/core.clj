@@ -521,6 +521,10 @@
               (if (and (nil? resu) (some? args))
                 [nil amb]
                 [:sin-errores amb]))
+      ? (let [args (next sentencia), resu (imprimir args amb)]
+          (if (and (nil? resu) (some? args))
+            [nil amb]
+            [:sin-errores amb]))
       LOAD (if (= (first (amb 1)) :ejecucion-inmediata)
              (let [nuevo-amb (cargar-arch (apply str (next sentencia)) (amb 1))]
                (if (nil? nuevo-amb)
@@ -639,6 +643,7 @@
            (str operando1 operando2)
            (+ operando1 operando2))
        - (- operando1 operando2)
+       * (* operando1 operando2)
        / (if (= operando2 0) (dar-error 133 nro-linea) (/ operando1 operando2))  ; Division by zero error
        AND (let [op1 (+ 0 operando1), op2 (+ 0 operando2)] (if (and (not= op1 0) (not= op2 0)) -1 0))
        MID$ (if (< operando2 1)
@@ -1200,14 +1205,17 @@
   (or (variable-integer? simbolo) (variable-float? simbolo) (variable-string? simbolo)))
   
 
-(defn _punto_o_variable_numerica? [simbolo]
-  (or (variable-float? simbolo) (variable-integer? simbolo) (= '\. simbolo)))
-  
+(defn _variable_numerica? [simbolo]
+  (or (variable-float? simbolo) (variable-integer? simbolo)))
 
+(defn _punto? [simbolo]
+  (= (symbol ".") simbolo))
+  
 (defn _reemplazar_valores [var-mem simbolo]
   (cond
+    (_punto? simbolo) 0
     (and (_es_variable? simbolo) (contains? var-mem simbolo)) (get var-mem simbolo)
-    (and (_punto_o_variable_numerica? simbolo) (not (contains? var-mem simbolo))) 0
+    (and (_variable_numerica? simbolo) (not (contains? var-mem simbolo))) 0
     (and (variable-string? simbolo) (not (contains? var-mem simbolo))) ""
     :else simbolo))
   
