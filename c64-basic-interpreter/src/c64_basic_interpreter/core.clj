@@ -1343,6 +1343,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn eliminar-cero-decimal [n]
   (cond
+    (ratio? n) (eliminar-cero-decimal (float n))
     (float? n) (if (= (- n (int n)) 0.0) (int n) n)
     :else n))
 
