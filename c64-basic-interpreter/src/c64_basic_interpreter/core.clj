@@ -595,6 +595,12 @@
              (retornar-al-for amb (fnext sentencia))
              (do (dar-error 16 (amb 1)) [nil amb]))  ; Syntax error
       END [nil amb]
+      LET (if (= (nth sentencia 2) '=)
+            (let [resu (ejecutar-asignacion (rest sentencia) amb)]
+              (if (nil? resu)
+                [nil amb]
+                [:sin-errores resu]))
+            (do (dar-error 16 (amb 1)) [nil amb]))
       (if (= (second sentencia) '=)
         (let [resu (ejecutar-asignacion sentencia amb)]
           (if (nil? resu)
@@ -785,7 +791,8 @@
 ; (IF X nil * Y < 12 THEN LET nil X = 0)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn anular-invalidos [sentencia]
-  (map _aux_anular_invalidos sentencia))
+  (if (= (first sentencia) 'REM) sentencia (map _aux_anular_invalidos sentencia))
+  )
   
 
 
