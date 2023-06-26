@@ -540,6 +540,8 @@
                  [:sin-errores amb]))
              (do (dar-error 201 (amb 1)) [nil amb]))  ; Save within program error
       REM [:omitir-restante amb]
+      CLEAR [:sin-errores [(amb 0) (amb 1) (amb 2) (amb 3) (amb 4) (amb 5) {}]]
+      LIST [(mostrar-listado (amb 0)) amb] 
       NEW [:sin-errores ['() [:ejecucion-inmediata 0] [] [] [] 0 {}]]  ; [(prog-mem)  [prog-ptrs]  [gosub-return-stack]  [for-next-stack]  [data-mem]  data-ptr  {var-mem}]
       RUN (cond
             (empty? (amb 0)) [:sin-errores amb]  ; no hay programa
