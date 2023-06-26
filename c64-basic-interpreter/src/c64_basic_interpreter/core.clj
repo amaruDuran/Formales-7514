@@ -525,6 +525,8 @@
           (if (and (nil? resu) (some? args))
             [nil amb]
             [:sin-errores amb]))
+      READ (leer-data (rest sentencia) amb)
+      RESTORE [:sin-errores [(amb 0) (amb 1) (amb 2) (amb 3) (amb 4) 0 (amb 6)]] ; nuevo ambiente
       LOAD (if (= (first (amb 1)) :ejecucion-inmediata)
              (let [nuevo-amb (cargar-arch (apply str (next sentencia)) (amb 1))]
                (if (nil? nuevo-amb)
@@ -620,8 +622,9 @@
      (dar-error 16 nro-linea)  ; Syntax error
      (case operador
        -u (- operando)
-       INT (if (not (number? operando)) (dar-error 163 nro-linea) (int operando))
+       INT (if (not (number? operando)) (dar-error 163 nro-linea) (int operando)) ; Type mismatch error
        LEN (count operando)
+       ASC (if (not (string? operando)) (dar-error 163 nro-linea) (int (first operando))) ; Type mismatch error
        STR$ (if (not (number? operando)) (dar-error 163 nro-linea) (eliminar-cero-entero operando)) ; Type mismatch error
        CHR$ (if (or (< operando 0) (> operando 255)) (dar-error 53 nro-linea) (str (char operando)))))) ; Illegal quantity error
   ([operador operando1 operando2 nro-linea]
