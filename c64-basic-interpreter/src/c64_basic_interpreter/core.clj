@@ -625,7 +625,11 @@
      (case operador
        -u (- operando)
        INT (if (not (number? operando)) (dar-error 163 nro-linea) (int operando)) ; Type mismatch error
-       LEN (count operando)
+       ATN (if (not (number? operando)) (dar-error 163 nro-linea) (Math/atan operando)) ; Type mismatch error
+       SIN (if (not (number? operando)) (dar-error 163 nro-linea) (Math/sin operando)) ; Type mismatch error
+       EXP (if (not (number? operando)) (dar-error 163 nro-linea) (Math/exp operando)) ; Type mismatch error
+       LOG (if (not (number? operando)) (dar-error 163 nro-linea) (Math/log operando)) ; Type mismatch error 
+       LEN (if (not (string? operando)) (dar-error 163 nro-linea) (count operando)) ; Type mismatch error
        ASC (if (not (string? operando)) (dar-error 163 nro-linea) (int (first operando))) ; Type mismatch error
        STR$ (if (not (number? operando)) (dar-error 163 nro-linea) (eliminar-cero-entero operando)) ; Type mismatch error
        CHR$ (if (or (< operando 0) (> operando 255)) (dar-error 53 nro-linea) (str (char operando)))))) ; Illegal quantity error
@@ -1281,6 +1285,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defn precedencia [token]
   (cond
+    (= (symbol ",") token) 0
     (= 'OR token) 1
     (= 'AND token) 2
     (= '<= token) 4
