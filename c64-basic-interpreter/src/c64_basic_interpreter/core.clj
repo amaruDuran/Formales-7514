@@ -1,4 +1,5 @@
 (ns c64-basic-interpreter.core
+  (:gen-class)
   (:require [clojure.string :as str] :reload-all))
 
 (declare driver-loop)                     ; NO TOCAR
