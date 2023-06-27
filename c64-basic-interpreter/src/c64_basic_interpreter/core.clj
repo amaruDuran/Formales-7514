@@ -26,10 +26,6 @@
 (declare aplicar)                         ; COMPLETAR
 
 (declare palabra-reservada?)              ; IMPLEMENTAR
-(declare _es_variable?)
-(declare _comando?)
-(declare _sentencia?)
-(declare _funcion?)
 (declare operador?)                       ; IMPLEMENTAR
 (declare anular-invalidos)                ; IMPLEMENTAR
 (declare cargar-linea)                    ; IMPLEMENTAR
@@ -48,20 +44,22 @@
 (declare precedencia)                     ; IMPLEMENTAR
 (declare aridad)                          ; IMPLEMENTAR
 (declare eliminar-cero-decimal)           ; IMPLEMENTAR
+(declare eliminar-cero-entero)            ; IMPLEMENTAR
+
+; Algunas funciones auxiliares utilizadas para implementar las 20 funciones.
+
+(declare _es_variable?)
+(declare _comando?)
+(declare _sentencia?)
+(declare _funcion?)
 (declare _parte_decimal_float)
 (declare _es_positivo?)
 (declare _insertar_signo_numerico)
 (declare _eliminar_cero_entero_float)
-(declare eliminar-cero-entero)            ; IMPLEMENTAR
 
 (defn -main
   [& args]
   (driver-loop))
-
-;BORRAR
-(defn spy
-  ([x] (do (prn x) x))
-  ([msg x] (do (print msg) (print ": ") (prn x) x)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; driver-loop: el REPL del interprete de Commodore 64 BASIC V2
@@ -680,6 +678,8 @@
 ; A PARTIR DE ESTE PUNTO HAY QUE IMPLEMENTAR LAS FUNCIONES DADAS ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+; **** Funciones auxliares de palabra-reservada? ****
+
 (defn _comando? [x]
   (cond
     (= x 'ENV) true
@@ -771,6 +771,9 @@
     (= x '>) true
     (= x '>=) true
     :else false))
+
+
+; **** Funciones auxiliares de anular-invalidos ****
 
 (defn _caracter_especial? [x]
   (cond
@@ -911,11 +914,12 @@
     (string? cod) (if (keyword? (nth prog-ptrs 0)) (print (str "\n" cod)) (print (str "\n" cod " IN " (nth prog-ptrs 0))))
     :else nil))
 
+
+; **** Funciones auxiliares de variable-float? ****
+
 (defn es_alfanumerico? [x]
   (let [s (str x)]
       (not (nil? (re-matches #"\w+" s)))))
-    
-  
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; variable-float?: predicado para determinar si un identificador
@@ -970,6 +974,7 @@
     :else (and (not (palabra-reservada? x)) (str/includes? (str x) "$"))))
   
 
+
 ; **** Funciones auxiliares de contar-sentencias ****
 
 (defn _nro_linea_esta? [nro-linea sentencia_con_numero]
@@ -993,36 +998,28 @@
   (count (expandir-nexts (rest (first (_filtrar_por_nro_linea nro-linea (first amb)))))))
 
 
+
 ; **** Funciones Auxiliares de buscar-lineas-restantes ****
 
 (defn aux_numero_linea_esta? [n linea]
   (let [nro-linea-sentencia (first linea)]
-    (= nro-linea-sentencia n)
-    )
-  )
+    (= nro-linea-sentencia n)))
 
 (defn _numero_linea_esta? [lineas nro-linea]
-  (> (count (filter (partial aux_numero_linea_esta? nro-linea) lineas)) 0)
-  )
+  (> (count (filter (partial aux_numero_linea_esta? nro-linea) lineas)) 0))
 
 (defn _aux_filtrar_lineas_restantes [nro-linea linea-act]
   (let [nro-linea-act (first linea-act)]
-    (>= nro-linea-act nro-linea)
-    )
-  )
+    (>= nro-linea-act nro-linea)))
 
 (defn _filtrar_lineas_restantes [lineas nro-linea]
-  (filter (partial _aux_filtrar_lineas_restantes nro-linea) lineas)
-  )
+  (filter (partial _aux_filtrar_lineas_restantes nro-linea) lineas))
 
 (defn _representacion_intermedia [lineas [nro-linea cant-sentencias-restantes]]
   (let [lineas-restantes (_filtrar_lineas_restantes lineas nro-linea),
         primer-linea (first lineas-restantes)
         ]
-    (conj (rest lineas-restantes) (conj (reverse (take cant-sentencias-restantes (reverse (expandir-nexts (rest primer-linea))))) nro-linea)) 
-    )
-  
-  )
+    (conj (rest lineas-restantes) (conj (reverse (take cant-sentencias-restantes (reverse (expandir-nexts (rest primer-linea))))) nro-linea))))
 
 (defn _buscar_lineas_restantes_nro [lineas prog-ptr]
   (let [nro-linea (first prog-ptr),
@@ -1031,11 +1028,7 @@
     (cond
       (and (_numero_linea_esta? lineas nro-linea) (< cant-sentencias-restantes 0)) (list (list nro-linea))
       (and (_numero_linea_esta? lineas nro-linea) (>= cant-sentencias-restantes 0)) (_representacion_intermedia lineas prog-ptr)
-      :else nil
-      )
-    )
-
-  )
+      :else nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; buscar-lineas-restantes: recibe un ambiente y retorna la
@@ -1073,15 +1066,14 @@
   (let [lineas (first amb) prog-ptr (second amb)]
     (cond
       (= (first prog-ptr) :ejecucion-inmediata) nil
-      (number? (first prog-ptr)) (_buscar_lineas_restantes_nro lineas prog-ptr)
-    )))
+      (number? (first prog-ptr)) (_buscar_lineas_restantes_nro lineas prog-ptr))))
+
 
 
 ; **** Funciones Auxiliares de continuar-linea ****
   
 (defn _construir_new_prog_ptr [[[nro-linea-go-sub sentencias-restantes]]]
-  (vector nro-linea-go-sub (dec sentencias-restantes)) 
-  )
+  (vector nro-linea-go-sub (dec sentencias-restantes)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; continuar-linea: implementa la sentencia RETURN, retornando una
@@ -1105,11 +1097,11 @@
         ]
     (cond
       (empty? gosub-return-stack) (vector (dar-error 22 prog-ptr) amb)
-      :else (vector :omitir-restante (vector prog-mem (_construir_new_prog_ptr gosub-return-stack) (vector) for-next-stack data-mem data-ptr var-mem))
-  )))
+      :else (vector :omitir-restante (vector prog-mem (_construir_new_prog_ptr gosub-return-stack) (vector) for-next-stack data-mem data-ptr var-mem)))))
 
 
-; **** Funciones Auxiliares extraer-data ****
+
+; **** Funciones Auxiliares de extraer-data ****
 
 (defn es_rem? [[_idx sentencias-linea]]
   (= (first sentencias-linea) (symbol "REM")))
@@ -1129,24 +1121,19 @@
   (map _aux_quitar_sentencias_post_rem lineas))
 
 (defn _aux_filtrar_lineas_data [sentencia]
-  (= (first sentencia) (symbol "DATA"))
-  )
+  (= (first sentencia) (symbol "DATA")))
 
 (defn _filtrar_sentencias_data [sentencias-linea]
-  (filter _aux_filtrar_lineas_data sentencias-linea) 
-  )
+  (filter _aux_filtrar_lineas_data sentencias-linea))
 
 (defn filtrar_sentencias_data [lineas]
-  (map _filtrar_sentencias_data  lineas)
-  )
+  (map _filtrar_sentencias_data  lineas))
 
 (defn _quitar_simbolos_de_data [simbolo]
-  (and (not= simbolo (symbol "DATA")) (not= simbolo (symbol ",")))
-  )
+  (and (not= simbolo (symbol "DATA")) (not= simbolo (symbol ","))))
 
 (defn quitar_simbolos_de_data [simbolos]
-  (filter _quitar_simbolos_de_data simbolos)
-  )
+  (filter _quitar_simbolos_de_data simbolos))
 
 (defn es_entero? [s]
     (not(nil? (re-matches #"\d+" s))))
@@ -1155,8 +1142,7 @@
   (not (nil? (re-matches #"\d+.\d+" s))))
 
 (defn es_string? [s]
-  (not (nil? (re-matches #"[^0-9]+" s)))
-  )
+  (not (nil? (re-matches #"[^0-9]+" s))))
 
 (defn castear_simbolo [simbolo]
   (let [sim (str simbolo)]
@@ -1164,10 +1150,7 @@
       (es_string? sim) sim
       (es_float? sim) (float (Float/parseFloat sim))
       (es_entero? sim) (int (Integer/parseInt sim))
-      :else nil
-      )
-    )
-  )
+      :else nil)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; extraer-data: recibe la representación intermedia de un programa
@@ -1182,8 +1165,8 @@
   (cond
     (empty? (first prg)) (list)
     :else (let [lineas (map rest prg)]
-            (map castear_simbolo (quitar_simbolos_de_data (flatten (filtrar_sentencias_data (quitar_sentencias_post_rem lineas)))))
-            )))
+            (map castear_simbolo (quitar_simbolos_de_data (flatten (filtrar_sentencias_data (quitar_sentencias_post_rem lineas))))))))
+
 
 
 ; **** Funciones auxiliares de ejecutar-asignacion ****
@@ -1217,12 +1200,12 @@
     (into [] (_reemplazar_var_mem var expresion data-mem amb))))
   
 
+
 ; **** Funciones auxiliares de preprocesar-expresion ****
 
 (defn _es_variable? [simbolo]
   (or (variable-integer? simbolo) (variable-float? simbolo) (variable-string? simbolo)))
   
-
 (defn _variable_numerica? [simbolo]
   (or (variable-float? simbolo) (variable-integer? simbolo)))
 
@@ -1374,6 +1357,8 @@
     (float? n) (if (= (- n (int n)) 0.0) (int n) (unchecked-float n))
     :else n))
 
+
+
 ; **** Funciones auxiliares de eliminar-cero-entero ****
 
 (defn _es_positivo? [n]
@@ -1418,8 +1403,7 @@
     (nil? n) nil
     (integer? n) (_insertar_signo_numerico n)
     (float? n) (_eliminar_cero_entero_float n)
-    (string? n) (str n)
-    (symbol? n) (str n)
+    (or (string? n) (symbol? n)) (str n)
     :else nil))
 
 true

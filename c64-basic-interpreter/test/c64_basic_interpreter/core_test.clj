@@ -163,45 +163,73 @@
     (is (= (buscar-lineas-restantes ['((PRINT X) (PRINT Y)) [:ejecucion-inmediata 2] [] [] [] 0 {}]) 
            nil)))
   
-  (testing "buscar-lineas-restantes del puntero de programa con 0 lineas restantes es nil"
+  (testing "buscar-lineas-restantes con el puntero de programa en la línea 10
+            con 2 sentencias restantes devuelve las lineas posteriores ó iguales a 10."
     (is (= (buscar-lineas-restantes [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [10 2] [] [] [] 0 {}]) 
            (list (list 10 (list 'PRINT 'X) (list 'PRINT 'Y)) (list 15 (list 'X '= 'X '+ 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))))))
   
-  (testing "buscar-lineas-restantes del puntero de programa con 0 lineas restantes es nil"
+  (testing "buscar-lineas-restantes con el puntero de programa en la línea 10
+            con 1 sentencias restantes devuelve las lineas posteriores ó iguales a 10
+            y la última sentencia que queda por ejecutar de la línea 10"
     (is (= (buscar-lineas-restantes [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [10 1] [] [] [] 0 {}])
            (list (list 10 (list 'PRINT 'Y)) (list 15 (list 'X '= 'X '+ 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))))))
   
-  (testing "buscar-lineas-restantes del puntero de programa con 0 lineas restantes es nil"
+  (testing "buscar-lineas-restantes con el puntero de programa en la línea 10
+            sin sentencias restantes devuelve las lineas posteriores ó iguales a 10
+            comenzando por la línea 10 sin sentencias restantes( (10) )"
     (is (= (buscar-lineas-restantes [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [10 0] [] [] [] 0 {}]) 
            (list (list 10) (list 15 (list 'X '= 'X '+ 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))))))
   
-  (testing "buscar-lineas-restantes del puntero de programa con 0 lineas restantes es nil"
+  (testing "buscar-lineas-restantes con el puntero de programa en la línea 15
+            y 1 en sentencias restantes devuelve las lineas posteriores ó iguales a 15
+            comenzando por la línea 15 con 1 sentencia restante"
     (is (= (buscar-lineas-restantes [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [15 1] [] [] [] 0 {}])
            (list (list 15 (list 'X '= 'X '+ 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))))))
   
-  (testing "buscar-lineas-restantes del puntero de programa con 0 lineas restantes es nil"
+  (testing "buscar-lineas-restantes con el puntero de programa en la línea 15
+            y con 0 sentencias restantes devuelve las lineas posteriores ó iguales a 15
+            comenzando por la línea 15 como ((15)) y las lineas posteriores sin cambios"
     (is (= (buscar-lineas-restantes [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [15 0] [] [] [] 0 {}]) 
            (list (list 15) (list 20 (list 'NEXT 'I (symbol ",") 'J))))))
   
-  (testing "buscar-lineas-restantes del puntero de programa con 0 lineas restantes es nil"
+  (testing "buscar-lineas-restantes con el puntero de programa en la línea 20
+            y 3 sentencias restantes (número de sentencias restantes es mayor a la cantidad de sentencias de la línea 20 (2))
+            devuelve las lineas posteriores ó iguales a 20
+            comenzando por la línea 20 con sus 2 sentencias 
+            y la linea 20 con nexts expandidos"
     (is (= (buscar-lineas-restantes [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [20 3] [] [] [] 0 {}])
            (list (list 20 (list 'NEXT 'I) (list 'NEXT 'J))))))
-  (testing "buscar-lineas-restantes del puntero de programa con 0 lineas restantes es nil"
+  
+  (testing "buscar-lineas-restantes con el puntero de programa en la línea 20
+            y 2 sentencias restantes (número de sentencias restantes es igual a la cantidad de sentencias de la línea 20 (2))
+            devuelve las lineas posteriores ó iguales a 20
+            comenzando por la línea 20 con sus 2 sentencias 
+            y la linea 20 con nexts expandidos"
     (is (= (buscar-lineas-restantes [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [20 2] [] [] [] 0 {}]) 
            (list (list 20 (list 'NEXT 'I) (list 'NEXT 'J))))))
 
-  (testing "buscar-lineas-restantes del puntero de programa con 0 lineas restantes es nil"
+  (testing "buscar-lineas-restantes con el puntero de programa en la línea 20
+            y 1 sentencias restantes (número de sentencias restantes es menor a la cantidad de sentencias de la línea 20 (2))
+            devuelve las lineas posteriores ó iguales a 20
+            comenzando por la línea 20 con su última sentencia y nexts expandidos. Las líneas posteriores sin cambios."
     (is (= (buscar-lineas-restantes [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [20 1] [] [] [] 0 {}])
            (list (list 20 (list 'NEXT 'J))))))
   
-  (testing "buscar-lineas-restantes del puntero de programa con 0 lineas restantes es nil"
+  (testing "buscar-lineas-restantes con el puntero de programa en la línea 20
+            y 0 sentencias restantes devuelve las lineas posteriores ó iguales a 20
+            comenzando por la línea 20 con sin sentencias, es decir ((20))"
     (is (= (buscar-lineas-restantes [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [20 0] [] [] [] 0 {}]) 
            (list (list 20)))))
   
-  (testing "buscar-lineas-restantes del puntero de programa con 0 lineas restantes es nil"
+  (testing "buscar-lineas-restantes con el puntero de programa en la línea 20
+            y -1 sentencias restantes devuelve las lineas posteriores ó iguales a 20
+            comenzando por la línea 20 con sin sentencias, es decir ((20))"
     (is (= (buscar-lineas-restantes [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [20 -1] [] [] [] 0 {}]) 
            (list (list 20)))))
-  (testing "buscar-lineas-restantes del puntero de programa con 0 lineas restantes es nil"
+           
+  (testing "buscar-lineas-restantes con el puntero de programa en la línea 25 
+            (número de línea inexistente en el ambiente)
+            y 0 sentencias restantes devuelve nil"
     (is (= (buscar-lineas-restantes [(list '(10 (PRINT X) (PRINT Y)) '(15 (X = X + 1)) (list 20 (list 'NEXT 'I (symbol ",") 'J))) [25 0] [] [] [] 0 {}]) 
            nil)))) 
 
