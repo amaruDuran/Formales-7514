@@ -58,6 +58,11 @@
 (declare _insertar_signo_numerico)
 (declare _eliminar_cero_entero_float)
 
+; BORRAR
+(defn spy
+  ([x] (do (prn x) x))
+  ([msg x] (do (print msg) (print ": ") (prn x) x)))
+
 (defn -main
   [& args]
   (driver-loop))
@@ -626,6 +631,7 @@
        INT (if (not (number? operando)) (dar-error 163 nro-linea) (int operando)) ; Type mismatch error
        ATN (if (not (number? operando)) (dar-error 163 nro-linea) (Math/atan operando)) ; Type mismatch error
        SIN (if (not (number? operando)) (dar-error 163 nro-linea) (Math/sin operando)) ; Type mismatch error
+       COS (if (not (number? operando)) (dar-error 163 nro-linea) (Math/cos operando)) ; Type mismatch error
        EXP (if (not (number? operando)) (dar-error 163 nro-linea) (Math/exp operando)) ; Type mismatch error
        LOG (if (not (number? operando)) (dar-error 163 nro-linea) (Math/log operando)) ; Type mismatch error 
        LEN (if (not (string? operando)) (dar-error 163 nro-linea) (count operando)) ; Type mismatch error
@@ -722,6 +728,7 @@
     (= x 'ATN) true
     (= x 'INT) true
     (= x 'SIN) true
+    (= x 'COS) true
     (= x 'EXP) true
     (= x 'LOG) true
     (= x 'LEN) true
@@ -1292,6 +1299,7 @@
     (= 'LOG token) 8
     (= 'EXP token) 8
     (= 'SIN token) 8
+    (= 'COS token) 8
     (= 'INT token) 8
     (= 'ATN token) 8
     :else nil))
@@ -1335,6 +1343,7 @@
     (= 'LOG token) 1
     (= 'EXP token) 1
     (= 'SIN token) 1
+    (= 'COS token) 1
     (= 'INT token) 1
     (= 'ATN token) 1
     :else 0))
