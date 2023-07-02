@@ -674,6 +674,11 @@
                (> operando2 (count operando1)) (subs operando1 0 (count operando1))
                :else (subs operando1 0 operando2)
                )
+       RIGHT$ (cond
+               (or (not (string? operando1)) (not (integer? operando2))) (dar-error 163 nro-linea)
+               (or (< operando2 0) (> operando2 255)) (dar-error 53 nro-linea)
+               (> operando2 (count operando1)) (subs operando1 0 (count operando1))
+               :else (subs operando1 (- (count operando1) operando2) (count operando1)))
        MID$ (if (< operando2 1)
               (dar-error 53 nro-linea)  ; Illegal quantity error
               (let [ini (dec operando2)] (if (>= ini (count operando1)) "" (subs operando1 ini)))))))
@@ -740,6 +745,7 @@
     (= x 'LEN) true
     (= x 'MID$) true
     (= x 'LEFT$) true
+    (= x 'RIGHT$) true
     (= x 'ASC) true
     (= x 'CHR$) true
     (= x 'STR$) true
@@ -1302,6 +1308,7 @@
     (= 'ASC token) 8
     (= 'MID$ token) 8
     (= 'LEFT$ token) 8
+    (= 'RIGHT$ token) 8
     (= 'MID3$ token) 8
     (= 'LEN token) 8
     (= 'LOG token) 8
@@ -1346,6 +1353,7 @@
     (= 'CHR$ token) 1
     (= 'ASC token) 1
     (= 'LEFT$ token) 2
+    (= 'RIGHT$ token) 2
     (= 'MID$ token) 2
     (= 'MID3$ token) 3
     (= 'LEN token) 1
