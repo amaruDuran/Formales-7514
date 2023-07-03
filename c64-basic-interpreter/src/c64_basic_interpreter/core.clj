@@ -58,6 +58,11 @@
 (declare _insertar_signo_numerico)
 (declare _eliminar_cero_entero_float)
 
+; BORRAR
+(defn spy
+  ([x] (do (prn x) x))
+  ([msg x] (do (print msg) (print ": ") (prn x) x)))
+
 (defn -main
   [& args]
   (driver-loop))
@@ -626,6 +631,7 @@
        INT (if (not (number? operando)) (dar-error 163 nro-linea) (int operando)) ; Type mismatch error
        ATN (if (not (number? operando)) (dar-error 163 nro-linea) (Math/atan operando)) ; Type mismatch error
        SIN (if (not (number? operando)) (dar-error 163 nro-linea) (Math/sin operando)) ; Type mismatch error
+       COS (if (not (number? operando)) (dar-error 163 nro-linea) (Math/cos operando)) ; Type mismatch error
        EXP (if (not (number? operando)) (dar-error 163 nro-linea) (Math/exp operando)) ; Type mismatch error
        LOG (if (not (number? operando)) (dar-error 163 nro-linea) (Math/log operando)) ; Type mismatch error 
        LEN (if (not (string? operando)) (dar-error 163 nro-linea) (count operando)) ; Type mismatch error
@@ -662,6 +668,17 @@
        / (if (= operando2 0) (dar-error 133 nro-linea) (/ operando1 operando2))  ; Division by zero error
        AND (let [op1 (+ 0 operando1), op2 (+ 0 operando2)] (if (and (not= op1 0) (not= op2 0)) -1 0))
        OR (let [op1 (+ 0 operando1), op2 (+ 0 operando2)] (if (or (= op1 -1) (= op2 -1)) -1 0))
+       LEFT$ (cond
+               (or (not (string? operando1)) (not (integer? operando2))) (dar-error 163 nro-linea)
+               (or (< operando2 0) (> operando2 255)) (dar-error 53 nro-linea)
+               (> operando2 (count operando1)) (subs operando1 0 (count operando1))
+               :else (subs operando1 0 operando2)
+               )
+       RIGHT$ (cond
+               (or (not (string? operando1)) (not (integer? operando2))) (dar-error 163 nro-linea)
+               (or (< operando2 0) (> operando2 255)) (dar-error 53 nro-linea)
+               (> operando2 (count operando1)) (subs operando1 0 (count operando1))
+               :else (subs operando1 (- (count operando1) operando2) (count operando1)))
        MID$ (if (< operando2 1)
               (dar-error 53 nro-linea)  ; Illegal quantity error
               (let [ini (dec operando2)] (if (>= ini (count operando1)) "" (subs operando1 ini)))))))
@@ -722,10 +739,13 @@
     (= x 'ATN) true
     (= x 'INT) true
     (= x 'SIN) true
+    (= x 'COS) true
     (= x 'EXP) true
     (= x 'LOG) true
     (= x 'LEN) true
     (= x 'MID$) true
+    (= x 'LEFT$) true
+    (= x 'RIGHT$) true
     (= x 'ASC) true
     (= x 'CHR$) true
     (= x 'STR$) true
@@ -1287,11 +1307,14 @@
     (= 'CHR$ token) 8
     (= 'ASC token) 8
     (= 'MID$ token) 8
+    (= 'LEFT$ token) 8
+    (= 'RIGHT$ token) 8
     (= 'MID3$ token) 8
     (= 'LEN token) 8
     (= 'LOG token) 8
     (= 'EXP token) 8
     (= 'SIN token) 8
+    (= 'COS token) 8
     (= 'INT token) 8
     (= 'ATN token) 8
     :else nil))
@@ -1329,12 +1352,15 @@
     (= 'STR$ token) 1
     (= 'CHR$ token) 1
     (= 'ASC token) 1
+    (= 'LEFT$ token) 2
+    (= 'RIGHT$ token) 2
     (= 'MID$ token) 2
     (= 'MID3$ token) 3
     (= 'LEN token) 1
     (= 'LOG token) 1
     (= 'EXP token) 1
     (= 'SIN token) 1
+    (= 'COS token) 1
     (= 'INT token) 1
     (= 'ATN token) 1
     :else 0))
