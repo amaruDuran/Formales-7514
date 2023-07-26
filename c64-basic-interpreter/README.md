@@ -4,7 +4,7 @@ Intérprete de BASIC V2 Commodore 64
 
 ## Como probarlo
 
-Basicamente 1ro debemos tener instalado el gestor de dependencias leiningen.
+Basicamente primero debemos tener instalado el gestor de dependencias leiningen.
 
 Se instala desde linux con: 
 
